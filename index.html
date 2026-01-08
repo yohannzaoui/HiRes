@@ -1,301 +1,132 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Standard Hi-Res Player</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --bg-main: #121212;
-            --bg-sidebar: #181818;
-            --bg-player: #282828;
-            --text-primary: #ffffff;
-            --text-secondary: #b3b3b3;
-            --accent: #1db954; /* Standard Green accent */
-            --border: #333333;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0e0f12" />
+  <title>Hi‑Res Web Player</title>
 
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-primary);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="icons/icon-512.png" />
 
-        /* Standard 3-part Layout */
-        .app-body {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 240px;
-            background-color: var(--bg-sidebar);
-            border-right: 1px solid var(--border);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Main Content Area */
-        .content {
-            flex: 1;
-            background-color: var(--bg-main);
-            overflow-y: auto;
-            padding: 30px;
-        }
-
-        /* Bottom Player Bar */
-        .player-bar {
-            height: 90px;
-            background-color: var(--bg-player);
-            border-top: 1px solid var(--border);
-            padding: 0 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        /* Standard Table Style for Library */
-        .track-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .track-table th {
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            border-bottom: 1px solid var(--border);
-            padding: 10px;
-            text-align: left;
-        }
-
-        .track-table tr {
-            transition: background 0.2s;
-            cursor: pointer;
-        }
-
-        .track-table tr:hover {
-            background-color: rgba(255, 255, 255, 0.05);
-        }
-
-        .track-table td {
-            padding: 12px 10px;
-            border-bottom: 1px solid transparent;
-            font-size: 0.9rem;
-        }
-
-        .active-row {
-            color: var(--accent) !important;
-        }
-
-        /* Controls */
-        .btn-control {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-            transition: color 0.2s;
-        }
-
-        .btn-control:hover {
-            color: var(--text-primary);
-        }
-
-        .play-pause-btn {
-            background-color: white;
-            color: black;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-        }
-
-        .progress-container {
-            width: 40%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        input[type="range"] {
-            width: 100%;
-            accent-color: var(--accent);
-            height: 4px;
-        }
-
-        .track-display {
-            display: flex;
-            align-items: center;
-            width: 30%;
-        }
-
-        .mini-cover {
-            width: 56px;
-            height: 56px;
-            background-color: #333;
-            margin-right: 15px;
-            border-radius: 4px;
-        }
-
-        .hi-res-label {
-            font-size: 0.6rem;
-            color: var(--accent);
-            border: 1px solid var(--accent);
-            padding: 1px 4px;
-            border-radius: 2px;
-            margin-left: 10px;
-        }
-    </style>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-
-    <div class="app-body">
-        <aside class="sidebar">
-            <h5 class="mb-4">Music Player</h5>
-            <button class="btn btn-outline-light btn-sm mb-4" onclick="document.getElementById('file-input').click()">
-                Open Files
-            </button>
-            <input type="file" id="file-input" hidden multiple accept="audio/*">
-            
-            <nav class="nav flex-column">
-                <a class="nav-link text-white ps-0 active" href="#">Library</a>
-                <a class="nav-link text-secondary ps-0" href="#">Playlists</a>
-                <a class="nav-link text-secondary ps-0" href="#">Settings</a>
-            </nav>
-        </aside>
-
-        <main class="content">
-            <h2 class="mb-4">My Tracks</h2>
-            <table class="track-table">
-                <thead>
-                    <tr>
-                        <th style="width: 50px;">#</th>
-                        <th>Title</th>
-                        <th>Format</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="playlist-body">
-                    </tbody>
-            </table>
-        </main>
+  <header class="topbar">
+    <h1>Hi‑Res Web Player</h1>
+    <div class="actions">
+      <button id="openFilesBtn">Ouvrir des fichiers</button>
+      <button id="openDirBtn" title="Chromium uniquement">Ouvrir un dossier</button>
+      <input id="fileInput" type="file" multiple accept="audio/*" hidden />
     </div>
+  </header>
 
-    <footer class="player-bar">
-        <div class="track-display">
-            <div class="mini-cover">
-                <img id="current-art" src="" style="width:100%; height:100%; object-fit:cover; display:none;">
-            </div>
-            <div>
-                <div id="current-title" class="fw-bold">No track selected</div>
-                <div class="d-flex align-items-center">
-                    <span id="current-artist" class="text-secondary small">Unknown Artist</span>
-                    <span class="hi-res-label">HI-RES</span>
-                </div>
-            </div>
+  <main class="layout">
+    <section class="playlist">
+      <h2>Playlist</h2>
+      <ul id="trackList"></ul>
+    </section>
+
+    <section class="player">
+      <div class="now-playing">
+        <div>
+          <div id="trackTitle" class="title">–</div>
+          <div id="trackMeta" class="meta">—</div>
         </div>
-
-        <div class="progress-container">
-            <div class="d-flex gap-3 mb-1">
-                <button class="btn-control" onclick="prev()">⏮</button>
-                <button class="play-pause-btn" id="master-play">▶</button>
-                <button class="btn-control" onclick="next()">⏭</button>
-            </div>
-            <input type="range" id="seek-bar" value="0">
+        <div class="time">
+          <span id="currentTime">0:00</span>
+          <span> / </span>
+          <span id="duration">0:00</span>
         </div>
+      </div>
 
-        <div style="width: 30%; text-align: right;">
-            <span class="text-secondary small" id="time-display">0:00 / 0:00</span>
+      <input id="seekBar" type="range" min="0" max="1000" value="0" step="1" />
+
+      <div class="controls">
+        <button id="prevBtn" aria-label="Précédent">⏮</button>
+        <button id="playPauseBtn" aria-label="Lecture/Pause">▶️</button>
+        <button id="nextBtn" aria-label="Suivant">⏭</button>
+        <label class="volume">
+          🔊
+          <input id="volume" type="range" min="0" max="1" step="0.01" value="0.9" />
+        </label>
+      </div>
+
+      <div class="tech">
+        <span id="sampleInfo">Sample rate : —</span>
+        <span id="ctxState">AudioContext : —</span>
+      </div>
+
+      <details class="panel" id="replaygainPanel">
+        <summary>🎚️ ReplayGain</summary>
+        <label class="switch">
+          <input type="checkbox" id="rgEnable" />
+          <span>Activer ReplayGain (track)</span>
+        </label>
+        <div class="muted small">Si un tag ReplayGain est présent, le niveau est ajusté automatiquement (dB → gain linéaire).</div>
+      </details>
+
+      <details class="panel" id="eqPanel">
+        <summary>🎛️ Égaliseur (5 bandes)</summary>
+        <div class="eq-grid">
+          <div class="eq-band">
+            <div>60 Hz (lowshelf)</div>
+            <input type="range" id="eq0" min="-12" max="12" step="0.5" value="0" />
+            <div class="muted"><span id="eq0v">0</span> dB</div>
+          </div>
+          <div class="eq-band">
+            <div>230 Hz</div>
+            <input type="range" id="eq1" min="-12" max="12" step="0.5" value="0" />
+            <div class="muted"><span id="eq1v">0</span> dB</div>
+          </div>
+          <div class="eq-band">
+            <div>910 Hz</div>
+            <input type="range" id="eq2" min="-12" max="12" step="0.5" value="0" />
+            <div class="muted"><span id="eq2v">0</span> dB</div>
+          </div>
+          <div class="eq-band">
+            <div>4 kHz</div>
+            <input type="range" id="eq3" min="-12" max="12" step="0.5" value="0" />
+            <div class="muted"><span id="eq3v">0</span> dB</div>
+          </div>
+          <div class="eq-band">
+            <div>12 kHz (highshelf)</div>
+            <input type="range" id="eq4" min="-12" max="12" step="0.5" value="0" />
+            <div class="muted"><span id="eq4v">0</span> dB</div>
+          </div>
         </div>
-    </footer>
+        <label class="switch">
+          <input type="checkbox" id="eqEnable" checked />
+          <span>Activer l’égaliseur</span>
+        </label>
+      </details>
 
-    <audio id="core-audio"></audio>
+      <canvas id="visualizer" width="960" height="180" aria-label="Visualiseur audio"></canvas>
+    </section>
+  </main>
 
-    <script>
-        const audio = document.getElementById('core-audio');
-        const playlistBody = document.getElementById('playlist-body');
-        const masterPlay = document.getElementById('master-play');
-        const seekBar = document.getElementById('seek-bar');
-        const timeDisplay = document.getElementById('time-display');
-        
-        let playlist = [];
-        let currentIndex = -1;
+  <footer class="foot">
+    <small>
+      Astuce : glissez/déposez des fichiers. Pour FLAC partout, un décodeur WASM est intégré.
+      En PWA, l’app est installable et fonctionne hors‑ligne (app shell).
+    </small>
+  </footer>
 
-        // File Loading
-        document.getElementById('file-input').onchange = (e) => {
-            const files = Array.from(e.target.files);
-            files.forEach(file => {
-                playlist.push(file);
-            });
-            renderPlaylist();
-            if (currentIndex === -1 && playlist.length > 0) loadTrack(0);
-        };
+  <!-- Libs externes (CDN) : FLAC WASM + metadata (ReplayGain) -->
+  <script src="https://cdn.jsdelivr.net/npm/@wasm-audio-decoders/flac@0.2.10/dist/flac-decoder.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/music-metadata-browser/dist/music-metadata-browser.min.js" defer></script>
 
-        function renderPlaylist() {
-            playlistBody.innerHTML = '';
-            playlist.forEach((file, index) => {
-                const tr = document.createElement('tr');
-                if(index === currentIndex) tr.className = 'active-row';
-                
-                tr.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${file.name.replace(/\.[^/.]+$/, "")}</td>
-                    <td>${file.name.split('.').pop().toUpperCase()}</td>
-                    <td>${index === currentIndex ? 'Playing' : ''}</td>
-                `;
-                tr.onclick = () => loadTrack(index, true);
-                playlistBody.appendChild(tr);
-            });
-        }
-
-        function loadTrack(index, autoPlay = false) {
-            if (index < 0 || index >= playlist.length) return;
-            currentIndex = index;
-            const file = playlist[index];
-            audio.src = URL.createObjectURL(file);
-            document.getElementById('current-title').innerText = file.name.replace(/\.[^/.]+$/, "");
-            renderPlaylist();
-            if (autoPlay) { audio.play(); masterPlay.innerText = "⏸"; }
-        }
-
-        // Controls
-        masterPlay.onclick = () => {
-            if (playlist.length === 0) return;
-            if (audio.paused) { audio.play(); masterPlay.innerText = "⏸"; }
-            else { audio.pause(); masterPlay.innerText = "▶"; }
-        };
-
-        function next() { if (currentIndex < playlist.length - 1) loadTrack(currentIndex + 1, true); }
-        function prev() { if (currentIndex > 0) loadTrack(currentIndex - 1, true); }
-
-        // Progress Bar & Time
-        audio.ontimeupdate = () => {
-            const current = formatTime(audio.currentTime);
-            const total = formatTime(audio.duration || 0);
-            timeDisplay.innerText = `${current} / ${total}`;
-            seekBar.value = (audio.currentTime / audio.duration) * 100 || 0;
-        };
-
-        seekBar.oninput = () => {
-            audio.currentTime = (seekBar.value * audio.duration) / 100;
-        };
-
-        function formatTime(secs) {
-            const min = Math.floor(secs / 60);
-            const sec = Math.floor(secs % 60);
-            return `${min}:${sec < 10 ? '0' : ''}${sec}`;
-        }
-    </script>
+  <script src="app.js" defer></script>
+  <script>
+    // Enregistrement Service Worker (PWA)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(console.error);
+      });
+    }
+  </script>
 </body>
 </html>

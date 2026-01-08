@@ -307,4 +307,3 @@ els.playPauseBtn.addEventListener('click', async () => {
   }, { once: true });
 });
 ``
-
