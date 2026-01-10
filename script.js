@@ -19,7 +19,7 @@ let isDraggingVolume = false;
 let currentArtUrl = null;
 
 window.onload = () => {
-    const settings = JSON.parse(localStorage.getItem('my_player_settings')) || {volume: 0.1};
+    const settings = JSON.parse(localStorage.getItem('my_player_settings')) || {volume: 0.05};
     player.volume = settings.volume;
     updateVolumeUI(settings.volume);
 };
@@ -98,10 +98,8 @@ function loadArt(f) {
                 const blob = new Blob([new Uint8Array(p.data)], { type: p.format });
                 currentArtUrl = URL.createObjectURL(blob);
                 artImg.src = currentArtUrl;
-                artContainer.style.display = 'block'; // On affiche le bloc
-            } else { 
-                artContainer.style.display = 'none'; // On cache le bloc
-            }
+                artContainer.style.display = 'block';
+            } else { artContainer.style.display = 'none'; }
         },
         onError: () => artContainer.style.display = 'none'
     });
@@ -112,19 +110,15 @@ function updateInfoDisplay() {
     if (!item) return;
     document.getElementById('file-name').textContent = item.displayName;
     document.getElementById('artist-name').textContent = item.artist;
-    
-    // Affichage correct du badge format
     const badge = document.getElementById('format-badge');
     badge.textContent = item.format;
     badge.style.display = 'inline-block';
-    
     renderPlaylist();
 }
 
 player.ontimeupdate = () => {
     if (player.duration) {
-        const pc = (player.currentTime / player.duration) * 100;
-        progressBar.style.width = `${pc}%`;
+        progressBar.style.width = `${(player.currentTime / player.duration) * 100}%`;
         currentTimeDisp.textContent = formatTime(player.currentTime);
         durationDisp.textContent = formatTime(player.duration);
     }
@@ -146,13 +140,30 @@ function nextTrack() {
 function prevTrack() { if (currentIndex > 0) playTrack(currentIndex - 1); }
 
 function toggleRepeat() {
-    if (repeatMode === 'off') repeatMode = 'all';
-    else if (repeatMode === 'all') repeatMode = 'one';
-    else repeatMode = 'off';
-    repeatBtn.textContent = `Rep: ${repeatMode.toUpperCase()}`;
+    repeatBtn.classList.remove('rep-one', 'rep-all');
+    if (repeatMode === 'off') {
+        repeatMode = 'all';
+        repeatBtn.textContent = 'Rep: ALL';
+        repeatBtn.classList.add('rep-all');
+    } else if (repeatMode === 'all') {
+        repeatMode = 'one';
+        repeatBtn.textContent = 'Rep: ONE';
+        repeatBtn.classList.add('rep-one');
+    } else {
+        repeatMode = 'off';
+        repeatBtn.textContent = 'Rep: OFF';
+    }
 }
 
-player.onended = () => nextTrack();
+player.onended = () => {
+    if (repeatMode === 'one') {
+        player.currentTime = 0;
+        player.play();
+    } else {
+        nextTrack();
+    }
+};
+
 playPauseBtn.onclick = () => { if(player.src) player.paused ? player.play() : player.pause(); };
 player.onplay = () => playPauseBtn.textContent = 'PAUSE';
 player.onpause = () => playPauseBtn.textContent = 'PLAY';

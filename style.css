@@ -5,6 +5,8 @@
     --danger: #ff4444;
     --text: #ffffff;
     --text-dim: #888888;
+    --blue-info: #00aaff;
+    --green-success: #2ecc71;
     --font-main: 'Inter', sans-serif;
 }
 
@@ -24,7 +26,7 @@ body {
 .player-section { padding: 40px; border-right: 1px solid #222; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
 .playlist-section { padding: 40px; background: #121212; flex: 1.5; display: flex; flex-direction: column; }
 
-/* --- TEXTES TECHNIQUES --- */
+/* --- TYPOGRAPHIE --- */
 .section-header, .time-display span, .volume-label, #volume-percent, #current-time, #duration { 
     font-size: 10px; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; color: var(--text-dim) !important;
 }
@@ -32,40 +34,38 @@ body {
 #file-name { font-size: 1.25rem; color: var(--accent); font-weight: 700; margin-bottom: 5px; }
 #artist-name { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 15px; }
 
-/* --- ÉTIQUETTE FORMAT --- */
 .badge-format {
-    display: inline-block;
-    font-size: 9px; padding: 2px 8px; 
+    display: inline-block; font-size: 9px; padding: 2px 8px; 
     border: 1px solid var(--accent); color: var(--accent);
     border-radius: 4px; text-transform: uppercase; font-weight: 800;
     vertical-align: middle; margin-left: 10px;
 }
 
-/* --- SLIDERS (RÉPARÉS) --- */
+/* --- SLIDERS --- */
 .progress-container, .volume-container { 
     width: 100%; background: #333; border-radius: 10px; 
     cursor: pointer; position: relative; height: 6px; margin-top: 10px;
 }
+.progress-bar, .volume-bar { position: absolute; left: 0; top: 0; height: 100%; background: var(--accent); border-radius: 10px; }
 
-.progress-bar, .volume-bar { 
-    position: absolute; left: 0; top: 0; height: 100%; 
-    background: var(--accent); border-radius: 10px;
-    box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
-}
-
-/* --- BOUTONS NAVIGATION (TAILLE IDENTIQUE) --- */
+/* --- NAVIGATION BUTTONS --- */
 .nav-controls { display: flex; gap: 8px; justify-content: center; }
 .nav-btn { 
     background: #1f1f1f; border: none; color: var(--text-dim); 
-    height: 40px; min-width: 70px; /* Taille fixe */
-    border-radius: 8px; font-size: 10px; font-weight: 800; 
-    text-transform: uppercase; transition: 0.2s;
+    height: 40px; min-width: 70px; border-radius: 8px; 
+    font-size: 10px; font-weight: 800; text-transform: uppercase; transition: 0.3s ease;
     display: flex; align-items: center; justify-content: center;
 }
-.nav-btn:hover { color: var(--accent); background: #252525; }
-.mute-active { color: var(--danger) !important; }
 
-/* --- ARTWORK (CACHÉ SI VIDE) --- */
+/* EFFET DORÉ AU SURVOL (DEMANDÉ) */
+.nav-btn:hover { color: var(--accent) !important; background: #252525; }
+
+/* ÉTATS COLORÉS PRIORITAIRES */
+.mute-active { color: var(--danger) !important; }
+.rep-one { color: var(--blue-info) !important; }
+.rep-all { color: var(--green-success) !important; }
+
+/* --- ARTWORK --- */
 .art-wrapper {
     width: 280px; height: 280px; margin: 0 auto 20px auto;
     background: #000; border-radius: 12px; overflow: hidden;
@@ -73,18 +73,13 @@ body {
 }
 #album-art { width: 100%; height: 100%; object-fit: cover; }
 
-/* --- PLAYLIST HEADER ALIGNÉ --- */
-.playlist-header-row {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #222;
-}
+/* --- PLAYLIST --- */
+.playlist-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #222; }
 .playlist-actions { display: flex; gap: 10px; align-items: center; }
-
 .upload-btn { background: var(--accent); color: #000; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 10px; font-weight: 800; text-transform: uppercase; margin: 0; }
 .clear-btn { background: transparent; color: var(--danger); border: 1px solid var(--danger); padding: 7px 16px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
-
-.play-pause-btn { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 12px 60px; border-radius: 30px; font-size: 12px; font-weight: 800; cursor: pointer; }
-
+.play-pause-btn { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 12px 60px; border-radius: 30px; font-size: 12px; font-weight: 800; cursor: pointer; transition: 0.3s; }
+.play-pause-btn:hover { background: rgba(212, 175, 55, 0.1); }
 .playlist-items { overflow-y: auto; flex-grow: 1; }
 .playlist-item { font-size: 0.85rem; padding: 12px; cursor: pointer; color: var(--text-dim); border-bottom: 1px solid rgba(255,255,255,0.02); }
 .playlist-item.active { color: var(--accent); background: rgba(212, 175, 55, 0.1); }
