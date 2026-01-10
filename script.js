@@ -90,7 +90,6 @@ function loadArt(f) {
     const artImg = document.getElementById('album-art');
     const artContainer = document.getElementById('art-container');
     if (currentArtUrl) URL.revokeObjectURL(currentArtUrl);
-
     jsmediatags.read(f, {
         onSuccess: (tag) => {
             const p = tag.tags.picture;
