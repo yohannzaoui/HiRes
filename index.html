@@ -71,7 +71,6 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.6);
         }
 
-        /* Container for Title and Format */
         .title-wrapper {
             display: flex;
             align-items: center;
@@ -87,7 +86,6 @@
             margin: 0;
         }
 
-        /* Format Badge Style */
         #format-badge {
             font-size: 9px;
             padding: 2px 6px;
@@ -96,7 +94,7 @@
             border-radius: 4px;
             text-transform: uppercase;
             font-weight: 800;
-            display: none; /* Hidden by default */
+            display: none;
         }
 
         #artist-name {
@@ -123,7 +121,7 @@
             padding: 10px 5px;
             border-radius: 8px;
             font-weight: bold;
-            font-size: 8px;
+            font-size: 9px;
             text-transform: uppercase;
             flex: 1;
             max-width: 90px;
@@ -181,9 +179,9 @@
             <audio id="player" controls></audio>
 
             <div class="nav-controls">
-                <button class="nav-btn" onclick="shufflePlaylist()">Random</button>
-                <button class="nav-btn" onclick="prevTrack()">Back</button>
-                <button class="nav-btn" onclick="nextTrack()">Next</button>
+                <button class="nav-btn" onclick="shufflePlaylist()">Shuffle</button>
+                <button class="nav-btn" onclick="prevTrack()">&lt;&lt;</button>
+                <button class="nav-btn" onclick="nextTrack()">&gt;&gt;</button>
                 <button class="nav-btn" id="repeat-btn" onclick="toggleRepeat()">Repeat: OFF</button>
             </div>
         </div>
@@ -219,6 +217,7 @@
 
     window.onload = () => {
         player.volume = 0.05;
+        // Preferences saved as requested
         localStorage.setItem('my_player_settings', JSON.stringify({theme: 'dark', lang: 'en', volume: 0.05}));
     };
 
@@ -228,7 +227,6 @@
             const isInitialLoad = playlist.length === 0;
             const startIndex = playlist.length;
             files.forEach(file => {
-                // Get extension
                 const ext = file.name.split('.').pop();
                 playlist.push({
                     file: file,
@@ -263,17 +261,12 @@
         if (index < 0 || index >= playlist.length) return;
         currentIndex = index;
         const item = playlist[index];
-        
         fileNameDisp.textContent = item.displayName;
         artistNameDisp.textContent = item.artist;
-        
-        // Update Format Badge
         formatBadge.textContent = item.format;
         formatBadge.style.display = 'inline-block';
-
         if (player.src) URL.revokeObjectURL(player.src);
         player.src = URL.createObjectURL(item.file);
-        
         renderPlaylist();
         loadMetadata(item.file, index);
         player.play().catch(e => console.log("Playback failed:", e));
