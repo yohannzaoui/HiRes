@@ -33,7 +33,6 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
         }
 
-        /* THE FIX: Hide the native input but keep it clickable via the label */
         #file-input {
             display: none;
         }
@@ -62,15 +61,22 @@
             color: var(--text-dim);
             margin-bottom: 20px;
             height: 1.2em;
+            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+
+        audio {
+            width: 100%;
+            filter: invert(1);
+            margin-bottom: 20px;
         }
 
         .volume-box {
             background: #222;
             padding: 15px;
             border-radius: 15px;
-            margin-bottom: 20px;
+            margin-top: 10px;
         }
 
         input[type="range"] {
@@ -78,24 +84,12 @@
             accent-color: var(--accent);
             cursor: pointer;
         }
-
-        audio {
-            width: 100%;
-            filter: invert(1); /* Makes the default player white to match dark mode */
-        }
-
-        .info {
-            font-size: 10px;
-            color: var(--text-dim);
-            margin-top: 20px;
-            letter-spacing: 1px;
-        }
     </style>
 </head>
 <body>
 
     <div class="player-card">
-        <div id="badge" style="color: var(--accent); font-size: 10px; margin-bottom: 10px;">HI-RES ENGINE ACTIVE</div>
+        <div id="badge" style="color: var(--accent); font-size: 10px; margin-bottom: 15px; font-weight: bold;">HI-RES ENGINE ACTIVE</div>
 
         <label for="file-input" class="upload-btn">
             Load Track
@@ -104,6 +98,8 @@
 
         <div id="file-name">No file loaded</div>
 
+        <audio id="player" controls></audio>
+
         <div class="volume-box">
             <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px;">
                 <span>Volume</span>
@@ -111,10 +107,6 @@
             </div>
             <input type="range" id="vol-slider" min="0" max="1" step="0.01" value="0.7">
         </div>
-
-        <audio id="player" controls></audio>
-
-        <div class="info">MODE: DARK | LANG: EN | STORAGE: PERSISTENT</div>
     </div>
 
     <script>
@@ -124,7 +116,7 @@
         const volSlider = document.getElementById('vol-slider');
         const volPct = document.getElementById('vol-pct');
 
-        // Load Preferences (Volume + Theme + Lang)
+        // Preferences Persistence
         window.onload = () => {
             const saved = JSON.parse(localStorage.getItem('my_player_settings'));
             if (saved) {
@@ -134,7 +126,7 @@
             }
         };
 
-        // Handle File Loading
+        // File Loading
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
@@ -145,13 +137,12 @@
             }
         });
 
-        // Handle Volume and Save Prefs
+        // Volume Logic
         volSlider.addEventListener('input', (e) => {
             const val = e.target.value;
             player.volume = val;
             volPct.textContent = Math.round(val * 100) + "%";
             
-            // Save to localStorage automatically
             const settings = {
                 volume: val,
                 theme: 'dark',
