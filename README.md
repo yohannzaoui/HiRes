@@ -1,2 +1,2 @@
 # HiRes
-HiRes Player
+HiFi Audio Player
