@@ -1,2 +1,3 @@
 # HiRes
-HiFi Audio Player
+
+HiFi Web Audio Player for PC/Mac only
