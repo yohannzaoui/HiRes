@@ -1,132 +1,196 @@
-
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#0e0f12" />
-  <title>Hi‑Res Web Player</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hi-Res Dark Player</title>
+    <style>
+        /* CSS Variables for easy theme management */
+        :root {
+            --bg-primary: #0f0f0f;
+            --bg-secondary: #1e1e1e;
+            --accent-color: #00e676; /* Hi-Res Green */
+            --text-main: #ffffff;
+            --text-dim: #b0b0b0;
+        }
 
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="icons/icon-192.png" sizes="192x192" />
-  <link rel="apple-touch-icon" href="icons/icon-512.png" />
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            transition: background-color 0.3s ease;
+        }
 
-  <link rel="stylesheet" href="styles.css" />
+        .player-card {
+            background-color: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 350px;
+            text-align: center;
+        }
+
+        .status-badge {
+            display: inline-block;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        #file-name {
+            font-size: 1.2rem;
+            margin: 10px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .custom-file-upload {
+            background-color: var(--accent-color);
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        audio {
+            width: 100%;
+            margin-top: 20px;
+            filter: invert(100%) hue-rotate(180deg) brightness(1.5); /* Adapting standard player to dark mode */
+        }
+
+        .settings-info {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            border-top: 1px solid #333;
+            padding-top: 10px;
+        }
+    </style>
 </head>
-<body>
-  <header class="topbar">
-    <h1>Hi‑Res Web Player</h1>
-    <div class="actions">
-      <button id="openFilesBtn">Ouvrir des fichiers</button>
-      <button id="openDirBtn" title="Chromium uniquement">Ouvrir un dossier</button>
-      <input id="fileInput" type="file" multiple accept="audio/*" hidden />
+<body class="dark-mode">
+
+    <div class="player-card">
+        <div class="status-badge" id="quality-tag">Hi-Res Engine Ready</div>
+        
+        <label for="file-input" class="custom-file-upload">
+            Open FLAC / WAV
+        </label>
+        <input type="file" id="file-input" accept="audio/*">
+
+        <div id="file-name">No file selected</div>
+        
+        <audio id="main-player" controls></audio>
+
+        <div class="settings-info">
+            App Mode: <span id="current-theme">Dark</span> | 
+            Language: <span id="current-lang">English</span>
+        </div>
     </div>
-  </header>
 
-  <main class="layout">
-    <section class="playlist">
-      <h2>Playlist</h2>
-      <ul id="trackList"></ul>
-    </section>
+    <script>
+        /**
+         * PREFERENCES MANAGEMENT
+         * Automatically saves and loads Language and Theme
+         */
+        const AppSettings = {
+            data: {
+                theme: 'dark',
+                language: 'en'
+            },
 
-    <section class="player">
-      <div class="now-playing">
-        <div>
-          <div id="trackTitle" class="title">–</div>
-          <div id="trackMeta" class="meta">—</div>
-        </div>
-        <div class="time">
-          <span id="currentTime">0:00</span>
-          <span> / </span>
-          <span id="duration">0:00</span>
-        </div>
-      </div>
+            init() {
+                this.load();
+                this.apply();
+            },
 
-      <input id="seekBar" type="range" min="0" max="1000" value="0" step="1" />
+            save() {
+                localStorage.setItem('hires_app_prefs', JSON.stringify(this.data));
+                console.log("Preferences saved automatically.");
+            },
 
-      <div class="controls">
-        <button id="prevBtn" aria-label="Précédent">⏮</button>
-        <button id="playPauseBtn" aria-label="Lecture/Pause">▶️</button>
-        <button id="nextBtn" aria-label="Suivant">⏭</button>
-        <label class="volume">
-          🔊
-          <input id="volume" type="range" min="0" max="1" step="0.01" value="0.9" />
-        </label>
-      </div>
+            load() {
+                const saved = localStorage.getItem('hires_app_prefs');
+                if (saved) {
+                    this.data = JSON.parse(saved);
+                } else {
+                    // Default values if first time
+                    this.save();
+                }
+            },
 
-      <div class="tech">
-        <span id="sampleInfo">Sample rate : —</span>
-        <span id="ctxState">AudioContext : —</span>
-      </div>
+            apply() {
+                // Apply Dark Mode (always on as per request)
+                if (this.data.theme === 'dark') {
+                    document.body.classList.add('dark-mode');
+                }
+                
+                // Apply Language
+                document.documentElement.lang = this.data.language;
+                
+                // Update UI Labels
+                document.getElementById('current-theme').textContent = this.data.theme.charAt(0).toUpperCase() + this.data.theme.slice(1);
+                document.getElementById('current-lang').textContent = this.data.language === 'en' ? 'English' : this.data.language;
+            }
+        };
 
-      <details class="panel" id="replaygainPanel">
-        <summary>🎚️ ReplayGain</summary>
-        <label class="switch">
-          <input type="checkbox" id="rgEnable" />
-          <span>Activer ReplayGain (track)</span>
-        </label>
-        <div class="muted small">Si un tag ReplayGain est présent, le niveau est ajusté automatiquement (dB → gain linéaire).</div>
-      </details>
+        /**
+         * AUDIO PLAYER LOGIC
+         */
+        const fileInput = document.getElementById('file-input');
+        const audioPlayer = document.getElementById('main-player');
+        const fileNameDisplay = document.getElementById('file-name');
+        const qualityTag = document.getElementById('quality-tag');
 
-      <details class="panel" id="eqPanel">
-        <summary>🎛️ Égaliseur (5 bandes)</summary>
-        <div class="eq-grid">
-          <div class="eq-band">
-            <div>60 Hz (lowshelf)</div>
-            <input type="range" id="eq0" min="-12" max="12" step="0.5" value="0" />
-            <div class="muted"><span id="eq0v">0</span> dB</div>
-          </div>
-          <div class="eq-band">
-            <div>230 Hz</div>
-            <input type="range" id="eq1" min="-12" max="12" step="0.5" value="0" />
-            <div class="muted"><span id="eq1v">0</span> dB</div>
-          </div>
-          <div class="eq-band">
-            <div>910 Hz</div>
-            <input type="range" id="eq2" min="-12" max="12" step="0.5" value="0" />
-            <div class="muted"><span id="eq2v">0</span> dB</div>
-          </div>
-          <div class="eq-band">
-            <div>4 kHz</div>
-            <input type="range" id="eq3" min="-12" max="12" step="0.5" value="0" />
-            <div class="muted"><span id="eq3v">0</span> dB</div>
-          </div>
-          <div class="eq-band">
-            <div>12 kHz (highshelf)</div>
-            <input type="range" id="eq4" min="-12" max="12" step="0.5" value="0" />
-            <div class="muted"><span id="eq4v">0</span> dB</div>
-          </div>
-        </div>
-        <label class="switch">
-          <input type="checkbox" id="eqEnable" checked />
-          <span>Activer l’égaliseur</span>
-        </label>
-      </details>
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Update UI with file name
+                fileNameDisplay.textContent = file.name;
+                
+                // Create local URL for the file
+                const url = URL.createObjectURL(file);
+                audioPlayer.src = url;
+                
+                // Basic check for Hi-Res indication (by extension)
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (ext === 'flac' || ext === 'wav' || ext === 'dsd') {
+                    qualityTag.textContent = "High Fidelity Lossless";
+                    qualityTag.style.borderColor = "#00e676";
+                } else {
+                    qualityTag.textContent = "Standard Compressed";
+                    qualityTag.style.borderColor = "#ffb300";
+                }
 
-      <canvas id="visualizer" width="960" height="180" aria-label="Visualiseur audio"></canvas>
-    </section>
-  </main>
+                audioPlayer.play();
+            }
+        });
 
-  <footer class="foot">
-    <small>
-      Astuce : glissez/déposez des fichiers. Pour FLAC partout, un décodeur WASM est intégré.
-      En PWA, l’app est installable et fonctionne hors‑ligne (app shell).
-    </small>
-  </footer>
+        // Initialize settings on load
+        window.onload = () => AppSettings.init();
 
-  <!-- Libs externes (CDN) : FLAC WASM + metadata (ReplayGain) -->
-  <script src="https://cdn.jsdelivr.net/npm/@wasm-audio-decoders/flac@0.2.10/dist/flac-decoder.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/music-metadata-browser/dist/music-metadata-browser.min.js" defer></script>
-
-  <script src="app.js" defer></script>
-  <script>
-    // Enregistrement Service Worker (PWA)
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(console.error);
-      });
-    }
-  </script>
+    </script>
 </body>
 </html>
