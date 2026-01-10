@@ -1,173 +1,180 @@
 const player = document.getElementById('player');
+const playPauseBtn = document.getElementById('play-pause-btn');
+const muteBtn = document.getElementById('mute-btn');
+const progressBar = document.getElementById('progress-bar');
+const progressContainer = document.getElementById('progress-container');
+const volumeBar = document.getElementById('volume-bar');
+const volumeContainer = document.getElementById('volume-container');
+const volumePercent = document.getElementById('volume-percent');
+const currentTimeDisp = document.getElementById('current-time');
+const durationDisp = document.getElementById('duration');
 const fileInput = document.getElementById('file-input');
-const fileNameDisp = document.getElementById('file-name');
-const artistNameDisp = document.getElementById('artist-name');
-const albumArt = document.getElementById('album-art');
-const formatBadge = document.getElementById('format-badge');
 const playlistContainer = document.getElementById('playlist');
 const repeatBtn = document.getElementById('repeat-btn');
 
 let playlist = [];
 let currentIndex = 0;
 let repeatMode = 'off';
+let isDraggingVolume = false;
+let currentArtUrl = null;
 
 window.onload = () => {
-    player.volume = 0.05;
+    const settings = JSON.parse(localStorage.getItem('my_player_settings')) || {volume: 0.1};
+    player.volume = settings.volume;
+    updateVolumeUI(settings.volume);
+};
+
+function updateVolumeFromEvent(e) {
+    const rect = volumeContainer.getBoundingClientRect();
+    let offsetX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+    const vol = offsetX / rect.width;
+    player.volume = vol;
+    player.muted = false;
+    updateVolumeUI(vol);
+    muteBtn.classList.remove('mute-active');
+    muteBtn.textContent = 'Mute: OFF';
+    localStorage.setItem('my_player_settings', JSON.stringify({volume: vol}));
+}
+
+volumeContainer.onmousedown = (e) => { isDraggingVolume = true; updateVolumeFromEvent(e); };
+window.onmousemove = (e) => { if (isDraggingVolume) updateVolumeFromEvent(e); };
+window.onmouseup = () => { isDraggingVolume = false; };
+
+function updateVolumeUI(v) {
+    const pc = Math.round(v * 100);
+    volumeBar.style.width = `${pc}%`;
+    volumePercent.textContent = `${pc}%`;
+}
+
+function toggleMute() {
+    player.muted = !player.muted;
+    muteBtn.textContent = player.muted ? 'Mute: ON' : 'Mute: OFF';
+    player.muted ? muteBtn.classList.add('mute-active') : muteBtn.classList.remove('mute-active');
+    updateVolumeUI(player.muted ? 0 : player.volume);
+}
+
+fileInput.onchange = (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    const isFirstLoad = playlist.length === 0;
+    const startIdx = playlist.length;
+    files.forEach((f, i) => {
+        const itemIndex = startIdx + i;
+        playlist.push({ file: f, displayName: f.name.replace(/\.[^/.]+$/, ""), artist: "Unknown Artist", format: f.name.split('.').pop().toUpperCase() });
+        jsmediatags.read(f, {
+            onSuccess: (tag) => {
+                if (tag.tags.title) playlist[itemIndex].displayName = tag.tags.title;
+                if (tag.tags.artist) playlist[itemIndex].artist = tag.tags.artist;
+                renderPlaylist();
+                if (itemIndex === currentIndex) updateInfoDisplay();
+            },
+            onError: () => renderPlaylist()
+        });
+    });
+    renderPlaylist();
+    if (isFirstLoad) playTrack(0);
+    fileInput.value = "";
+};
+
+function playTrack(i) {
+    if (i < 0 || i >= playlist.length) return;
+    currentIndex = i;
+    if (player.src) URL.revokeObjectURL(player.src);
+    player.src = URL.createObjectURL(playlist[i].file);
+    updateInfoDisplay();
+    loadArt(playlist[i].file);
+    player.play();
+}
+
+function loadArt(f) {
+    const artImg = document.getElementById('album-art');
+    const artContainer = document.getElementById('art-container');
+    if (currentArtUrl) URL.revokeObjectURL(currentArtUrl);
+
+    jsmediatags.read(f, {
+        onSuccess: (tag) => {
+            const p = tag.tags.picture;
+            if (p) {
+                const blob = new Blob([new Uint8Array(p.data)], { type: p.format });
+                currentArtUrl = URL.createObjectURL(blob);
+                artImg.src = currentArtUrl;
+                artContainer.style.display = 'block'; // On affiche le bloc
+            } else { 
+                artContainer.style.display = 'none'; // On cache le bloc
+            }
+        },
+        onError: () => artContainer.style.display = 'none'
+    });
+}
+
+function updateInfoDisplay() {
+    const item = playlist[currentIndex];
+    if (!item) return;
+    document.getElementById('file-name').textContent = item.displayName;
+    document.getElementById('artist-name').textContent = item.artist;
     
-    // Auto-save preferences as requested
-    localStorage.setItem('my_player_settings', JSON.stringify({
-        theme: 'dark', 
-        lang: 'en', 
-        volume: 0.05
-    }));
+    // Affichage correct du badge format
+    const badge = document.getElementById('format-badge');
+    badge.textContent = item.format;
+    badge.style.display = 'inline-block';
     
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js')
-            .then(() => console.log("PWA Service Worker Registered"))
-            .catch(err => console.log("SW Registration failed:", err));
+    renderPlaylist();
+}
+
+player.ontimeupdate = () => {
+    if (player.duration) {
+        const pc = (player.currentTime / player.duration) * 100;
+        progressBar.style.width = `${pc}%`;
+        currentTimeDisp.textContent = formatTime(player.currentTime);
+        durationDisp.textContent = formatTime(player.duration);
     }
 };
 
-fileInput.addEventListener('change', (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length > 0) {
-        const isInitialLoad = playlist.length === 0;
-        const startIndex = playlist.length;
-        files.forEach(file => {
-            const ext = file.name.split('.').pop();
-            playlist.push({
-                file: file,
-                displayName: cleanFileName(file.name),
-                artist: "Loading...",
-                format: ext
-            });
-        });
-        renderPlaylist();
-        files.forEach((file, i) => updateMetadataInList(file, startIndex + i));
-        if (isInitialLoad) playTrack(0);
+progressContainer.onclick = (e) => {
+    if(player.duration) {
+        const rect = progressContainer.getBoundingClientRect();
+        player.currentTime = ((e.clientX - rect.left) / rect.width) * player.duration;
     }
-    e.target.value = '';
-});
+};
 
-function cleanFileName(name) {
-    return name.substring(0, name.lastIndexOf('.')) || name;
+function nextTrack() {
+    if (repeatMode === 'one' && playlist.length > 0) playTrack(currentIndex);
+    else if (currentIndex < playlist.length - 1) playTrack(currentIndex + 1);
+    else if (repeatMode === 'all') playTrack(0);
 }
+
+function prevTrack() { if (currentIndex > 0) playTrack(currentIndex - 1); }
+
+function toggleRepeat() {
+    if (repeatMode === 'off') repeatMode = 'all';
+    else if (repeatMode === 'all') repeatMode = 'one';
+    else repeatMode = 'off';
+    repeatBtn.textContent = `Rep: ${repeatMode.toUpperCase()}`;
+}
+
+player.onended = () => nextTrack();
+playPauseBtn.onclick = () => { if(player.src) player.paused ? player.play() : player.pause(); };
+player.onplay = () => playPauseBtn.textContent = 'PAUSE';
+player.onpause = () => playPauseBtn.textContent = 'PLAY';
 
 function renderPlaylist() {
     playlistContainer.innerHTML = '';
-    playlist.forEach((item, index) => {
+    playlist.forEach((item, i) => {
         const div = document.createElement('div');
-        div.className = `playlist-item text-truncate ${index === currentIndex ? 'active' : ''}`;
-        div.textContent = `${index + 1}. ${item.displayName}`;
-        div.onclick = () => playTrack(index);
+        div.className = `playlist-item text-truncate ${i === currentIndex ? 'active' : ''}`;
+        div.textContent = `${i + 1}. ${item.displayName}`;
+        div.onclick = () => playTrack(i);
         playlistContainer.appendChild(div);
     });
 }
 
-function playTrack(index) {
-    if (index < 0 || index >= playlist.length) return;
-    currentIndex = index;
-    const item = playlist[index];
-    fileNameDisp.textContent = item.displayName;
-    artistNameDisp.textContent = item.artist;
-    formatBadge.textContent = item.format;
-    formatBadge.style.display = 'inline-block';
-    if (player.src) URL.revokeObjectURL(player.src);
-    player.src = URL.createObjectURL(item.file);
-    renderPlaylist();
-    loadMetadata(item.file, index);
-    player.play().catch(e => console.log("Playback failed:", e));
+function formatTime(t) { const m = Math.floor(t/60), s = Math.floor(t%60); return `${m}:${s<10?'0'+s:s}`; }
+function shufflePlaylist() { if(playlist.length > 0) { playlist.sort(() => Math.random() - 0.5); playTrack(0); } }
+function clearPlaylist() { 
+    playlist = []; currentIndex = 0; player.pause(); player.src = ''; 
+    document.getElementById('file-name').textContent = "No track selected";
+    document.getElementById('artist-name').textContent = "";
+    document.getElementById('format-badge').style.display = 'none';
+    document.getElementById('art-container').style.display = 'none';
+    renderPlaylist(); 
 }
-
-function updateMetadataInList(file, index) {
-    jsmediatags.read(file, {
-        onSuccess: function(tag) {
-            if (tag.tags.title) playlist[index].displayName = tag.tags.title;
-            if (tag.tags.artist) playlist[index].artist = tag.tags.artist;
-            renderPlaylist();
-            if (index === currentIndex) {
-                fileNameDisp.textContent = playlist[index].displayName;
-                artistNameDisp.textContent = playlist[index].artist;
-            }
-        }
-    });
-}
-
-function loadMetadata(file, index) {
-    albumArt.style.display = 'none';
-    jsmediatags.read(file, {
-        onSuccess: function(tag) {
-            const data = tag.tags.picture;
-            if (data) {
-                let base64String = "";
-                for (let i = 0; i < data.data.length; i++) {
-                    base64String += String.fromCharCode(data.data[i]);
-                }
-                const base64 = "data:" + data.format + ";base64," + window.btoa(base64String);
-                albumArt.style.backgroundImage = `url(${base64})`;
-                albumArt.style.display = 'block';
-            }
-        }
-    });
-}
-
-function clearPlaylist() {
-    playlist = [];
-    currentIndex = 0;
-    player.pause();
-    if (player.src) URL.revokeObjectURL(player.src);
-    player.removeAttribute('src'); 
-    player.load();
-    fileNameDisp.textContent = "No track selected";
-    artistNameDisp.textContent = "";
-    formatBadge.style.display = 'none';
-    albumArt.style.display = 'none';
-    renderPlaylist();
-}
-
-function toggleRepeat() {
-    if (repeatMode === 'off') {
-        repeatMode = 'one';
-        repeatBtn.textContent = 'Repeat: ONE';
-        repeatBtn.classList.add('active-mode');
-    } else if (repeatMode === 'one') {
-        repeatMode = 'all';
-        repeatBtn.textContent = 'Repeat: ALL';
-        repeatBtn.classList.add('active-mode');
-    } else {
-        repeatMode = 'off';
-        repeatBtn.textContent = 'Repeat: OFF';
-        repeatBtn.classList.remove('active-mode');
-    }
-}
-
-function shufflePlaylist() {
-    if (playlist.length <= 1) return;
-    for (let i = playlist.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [playlist[i], playlist[j]] = [playlist[j], playlist[i]];
-    }
-    playTrack(0);
-}
-
-function nextTrack() {
-    if (repeatMode === 'one') {
-        player.currentTime = 0;
-        player.play();
-    } else if (currentIndex + 1 < playlist.length) {
-        playTrack(currentIndex + 1);
-    } else if (repeatMode === 'all' && playlist.length > 0) {
-        playTrack(0);
-    }
-}
-
-function prevTrack() {
-    if (repeatMode === 'one') {
-        player.currentTime = 0;
-        player.play();
-    } else if (currentIndex - 1 >= 0) {
-        playTrack(currentIndex - 1);
-    }
-}
-
-player.onended = () => nextTrack();

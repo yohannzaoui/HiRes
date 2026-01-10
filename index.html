@@ -4,50 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HiFi Audio Player</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#d4af37">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3659/3659899.png">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
 </head>
 <body>
 
-<div class="container">
-    <div class="app-container row g-0">
-        <div class="col-md-5 player-section d-flex flex-column justify-content-center">
-            <div class="playlist-header mb-4">HiFi Audio Player</div>
-            <div id="album-art"></div>
-            <div class="title-wrapper">
-                <div id="file-name" class="text-truncate">No track selected</div>
-                <span id="format-badge"></span>
+<div class="app-container row g-0">
+    <div class="col-md-5 player-section">
+        <div class="section-header">HiFi Audio Player</div>
+        
+        <div class="player-main-content">
+            <div id="art-container" class="art-wrapper" style="display:none;">
+                <img id="album-art" src="" alt="Album Art">
+            </div>
+            <div class="title-wrapper mt-3">
+                <h2 id="file-name" class="text-truncate">No track selected</h2>
+                <span id="format-badge" class="badge-format" style="display:none"></span>
             </div>
             <div id="artist-name" class="text-truncate"></div>
-            <audio id="player" controls></audio>
-            <div class="nav-controls">
-                <button class="nav-btn" onclick="shufflePlaylist()">Shuffle</button>
-                <button class="nav-btn" onclick="prevTrack()">&lt;&lt;</button>
-                <button class="nav-btn" onclick="nextTrack()">&gt;&gt;</button>
-                <button class="nav-btn" id="repeat-btn" onclick="toggleRepeat()">Repeat: OFF</button>
+        </div>
+
+        <audio id="player"></audio>
+
+        <div class="custom-controls">
+            <div class="time-display d-flex justify-content-between">
+                <span id="current-time">0:00</span>
+                <span id="duration">0:00</span>
+            </div>
+            <div class="progress-container" id="progress-container">
+                <div class="progress-bar" id="progress-bar" style="width: 0%;"></div>
+            </div>
+            
+            <div class="main-actions py-4">
+                <button class="play-pause-btn" id="play-pause-btn">PLAY</button>
+            </div>
+
+            <div class="volume-control">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="volume-label">VOL</span>
+                    <span id="volume-percent">5%</span>
+                </div>
+                <div class="volume-container" id="volume-container">
+                    <div class="volume-bar" id="volume-bar" style="width: 5%;"></div>
+                </div>
             </div>
         </div>
 
-        <div class="col-md-7 playlist-section d-flex flex-column">
-            <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-secondary">
-                <div class="playlist-header">Playlist Queue</div>
-                <div class="d-flex gap-2">
-                    <label for="file-input" class="upload-btn">Add Files</label>
-                    <button class="clear-btn" onclick="clearPlaylist()">Clear</button>
-                    <input type="file" id="file-input" accept=".flac,.wav,.mp3,.m4a" multiple>
-                </div>
-            </div>
-            <div class="playlist-items" id="playlist"></div>
+        <div class="nav-controls mt-4">
+            <button class="nav-btn" onclick="prevTrack()"><i class="fas fa-backward-step"></i></button>
+            <button class="nav-btn" onclick="nextTrack()"><i class="fas fa-forward-step"></i></button>
+            <button class="nav-btn" id="shuffle-btn" onclick="shufflePlaylist()">Shuffle</button>
+            <button class="nav-btn" id="repeat-btn" onclick="toggleRepeat()">Rep: OFF</button>
+            <button class="nav-btn" id="mute-btn" onclick="toggleMute()">Mute: OFF</button>
         </div>
+    </div>
+
+    <div class="col-md-7 playlist-section">
+        <div class="playlist-header-row">
+            <div class="section-header">Playlist Queue</div>
+            <div class="playlist-actions">
+                <label for="file-input" class="upload-btn">Add Files</label>
+                <button class="clear-btn" onclick="clearPlaylist()">Clear</button>
+                <input type="file" id="file-input" accept=".flac,.wav,.mp3,.m4a" multiple>
+            </div>
+        </div>
+        <div class="playlist-items" id="playlist"></div>
     </div>
 </div>
 
