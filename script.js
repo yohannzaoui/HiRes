@@ -17,7 +17,7 @@ let currentIndex = 0;
 let isShuffle = false;
 let repeatMode = 'OFF';
 
-// --- Peak Hold Variables ---
+// Peak Hold Logic
 let peaks = [];
 const PEAK_FALL_SPEED = 1.2;
 
@@ -37,7 +37,6 @@ function setupVisualizer() {
         analyzer.fftSize = 64; 
         dataArray = new Uint8Array(analyzer.frequencyBinCount);
         isVisualizerSetup = true;
-        
         canvas.width = canvas.clientWidth;
         canvas.height = canvas.clientHeight;
         draw();
@@ -56,14 +55,9 @@ function draw() {
     for (let i = 0; i < dataArray.length; i++) {
         let barHeight = (dataArray[i] / 255) * canvas.height;
 
-        // Peak Hold Logic
-        if (!peaks[i] || barHeight > peaks[i]) {
-            peaks[i] = barHeight;
-        } else {
-            peaks[i] -= PEAK_FALL_SPEED;
-        }
+        if (!peaks[i] || barHeight > peaks[i]) { peaks[i] = barHeight; } 
+        else { peaks[i] -= PEAK_FALL_SPEED; }
 
-        // Bar Gradient
         const gradient = canvasCtx.createLinearGradient(0, canvas.height, 0, 0);
         gradient.addColorStop(0, '#8a6d1d');
         gradient.addColorStop(0.6, '#d4af37');
@@ -71,8 +65,6 @@ function draw() {
 
         canvasCtx.fillStyle = gradient;
         canvasCtx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
-
-        // Peak Line
         canvasCtx.fillStyle = '#ffffff';
         canvasCtx.fillRect(x, canvas.height - peaks[i] - 2, barWidth - 2, 2);
 
@@ -80,7 +72,6 @@ function draw() {
     }
 }
 
-// Metadata Extraction
 function extractMetadata(file) {
     jsmediatags.read(file, {
         onSuccess: function(tag) {
@@ -103,7 +94,6 @@ function extractMetadata(file) {
     });
 }
 
-// Playlist & Control Logic
 fileInput.addEventListener('change', (e) => {
     const files = Array.from(e.target.files);
     const wasEmpty = (playlist.length === 0);
