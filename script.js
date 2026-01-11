@@ -38,7 +38,7 @@ function setupVisualizer() {
         analyzer = audioCtx.createAnalyser();
         source.connect(analyzer);
         analyzer.connect(audioCtx.destination);
-        analyzer.fftSize = 64; // 32 Bars
+        analyzer.fftSize = 64; // 32 Bands
         dataArray = new Uint8Array(analyzer.frequencyBinCount);
         isVisualizerSetup = true;
         canvas.width = canvas.clientWidth;
@@ -85,9 +85,21 @@ function extractMetadata(file) {
         onSuccess: function(tag) {
             const t = tag.tags;
             document.getElementById('artist-name').innerText = t.artist || "Unknown Artist";
+            
+            // Album display logic
+            const albumContainer = document.getElementById('album-info-display');
+            const albumText = document.getElementById('album-title-text');
+            if (t.album) {
+                albumText.innerText = t.album;
+                albumContainer.style.display = 'block';
+            } else {
+                albumContainer.style.display = 'none';
+            }
+
             const badge = document.getElementById('format-badge');
             badge.innerText = file.name.split('.').pop();
             badge.style.display = 'inline-block';
+            
             if (t.picture) {
                 const { data, format } = t.picture;
                 let base64 = "";
@@ -213,4 +225,5 @@ function clearPlaylist() {
     document.getElementById('art-container').style.display = "none";
     document.getElementById('artist-name').innerText = "";
     document.getElementById('format-badge').style.display = "none";
+    document.getElementById('album-info-display').style.display = "none";
 }
