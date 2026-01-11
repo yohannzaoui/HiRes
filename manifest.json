@@ -1,0 +1,16 @@
+{
+  "name": "HiFi Audio Player",
+  "short_name": "HiFiPlayer",
+  "description": "HiFi Audio Player for PC/MAC",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#d4af37",
+  "icons": [
+    {
+      "src": "img/favicon.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    }
+  ]
+}

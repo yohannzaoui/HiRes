@@ -18,14 +18,12 @@ let repeatMode = 'off';
 let isDraggingVolume = false;
 let currentArtUrl = null;
 
-// INIT & LOAD PREFERENCES
 window.onload = () => {
     const settings = JSON.parse(localStorage.getItem('my_player_settings')) || {volume: 0.05};
     player.volume = settings.volume;
     updateVolumeUI(settings.volume);
 };
 
-// VOLUME CONTROL
 function updateVolumeFromEvent(e) {
     const rect = volumeContainer.getBoundingClientRect();
     let offsetX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
@@ -55,11 +53,9 @@ function toggleMute() {
     updateVolumeUI(player.muted ? 0 : player.volume);
 }
 
-// FILE HANDLING
 fileInput.onchange = (e) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
-    const isFirstLoad = playlist.length === 0;
     const startIdx = playlist.length;
     files.forEach((f, i) => {
         const itemIndex = startIdx + i;
@@ -75,7 +71,7 @@ fileInput.onchange = (e) => {
         });
     });
     renderPlaylist();
-    if (isFirstLoad) playTrack(0);
+    if (startIdx === 0) playTrack(0);
     fileInput.value = "";
 };
 
@@ -118,7 +114,6 @@ function updateInfoDisplay() {
     renderPlaylist();
 }
 
-// PROGRESS & TIME
 player.ontimeupdate = () => {
     if (player.duration) {
         progressBar.style.width = `${(player.currentTime / player.duration) * 100}%`;
@@ -134,7 +129,6 @@ progressContainer.onclick = (e) => {
     }
 };
 
-// NAVIGATION
 function nextTrack() {
     if (repeatMode === 'one' && playlist.length > 0) playTrack(currentIndex);
     else if (currentIndex < playlist.length - 1) playTrack(currentIndex + 1);
