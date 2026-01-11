@@ -21,17 +21,6 @@ A sleek, high-fidelity web-based audio station designed for desktop enthusiasts.
 * **Library**: [jsmediatags](https://github.com/aadsm/jsmediatags) for audio metadata processing.
 * **Installation**: Service Workers & Manifest.json for PWA functionality.
 
-## 📂 Project Structure
-
-```text
-├── index.html          # Main application structure
-├── style.css           # Styling with Golden Halo & Dark Mode
-├── script.js          # Audio engine & Playlist logic
-├── manifest.json       # Desktop installation configuration
-├── sw.js               # Service Worker for offline/PWA support
-└── img/
-    └── favicon.png     # Custom application icon
-
 ```
 
 ## 🚀 Installation & Setup
