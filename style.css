@@ -8,6 +8,7 @@
     --font-main: 'Inter', sans-serif;
 }
 
+/* Stylized Scrollbar */
 .playlist-items::-webkit-scrollbar { width: 6px; }
 .playlist-items::-webkit-scrollbar-track { background: #050505; }
 .playlist-items::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
@@ -23,8 +24,11 @@ body {
 .app-container {
     display: flex; background: var(--bg-card); border-radius: 24px;
     width: 1100px; height: 780px; overflow: hidden;
-    border: 1px solid rgba(212, 175, 55, 0.4);
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9);
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    /* INTENSIFIED GOLDEN HALO */
+    box-shadow: 0 0 40px rgba(212, 175, 55, 0.3), 
+                0 0 80px rgba(212, 175, 55, 0.1),
+                0 30px 60px rgba(0, 0, 0, 0.9);
 }
 
 .player-section { flex: 0 0 450px; padding: 30px; border-right: 1px solid #222; display: flex; flex-direction: column; align-items: center; justify-content: space-between; background: #121212; }
@@ -57,7 +61,7 @@ body {
 .play-pause-btn { background: transparent; border: 2px solid var(--accent); color: var(--accent); width: 140px; height: 44px; border-radius: 30px; font-weight: 800; cursor: pointer; transition: 0.3s; }
 .play-pause-btn:hover { background: rgba(212, 175, 55, 0.2); box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); }
 
-.nav-btn-alt { background: #1f1f1f; color: var(--text-dim); width: 42px; height: 42px; border-radius: 50%; border-color: #333; cursor: pointer; transition: 0.3s; }
+.nav-btn-alt { background: #1f1f1f; color: var(--text-dim); width: 42px; height: 42px; border-radius: 50%; border: 1px solid #333; cursor: pointer; transition: 0.3s; }
 .nav-btn-alt:hover { color: var(--accent); border-color: var(--accent); background: rgba(212, 175, 55, 0.1); }
 
 .visualizer-container { width: 100%; height: 55px; margin: 10px 0; background: transparent; }

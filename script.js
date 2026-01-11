@@ -16,14 +16,13 @@ let repeatMode = 'OFF';
 let pointA = null, pointB = null, isABLooping = false;
 let peaks = [];
 
-// --- INITIALIZATION & PREFERENCES ---
 window.onload = () => {
     const savedVolume = localStorage.getItem('hifi-volume');
     if (savedVolume !== null) {
         player.volume = savedVolume;
         updateVolumeUI(savedVolume);
     } else {
-        player.volume = 0.05; // Default 5%
+        player.volume = 0.05;
         updateVolumeUI(0.05);
     }
 };
@@ -33,7 +32,6 @@ function updateVolumeUI(vol) {
     document.getElementById('volume-percent').innerText = Math.round(vol * 100) + '%';
 }
 
-// --- NAVIGATION LOGIC ---
 function nextTrack() {
     if (playlist.length === 0) return;
     if (repeatMode === 'ONE') { playTrack(currentIndex); return; }
@@ -58,7 +56,6 @@ player.onended = () => {
     else playPauseBtn.innerText = 'PLAY';
 };
 
-// --- CORE FUNCTIONS ---
 function setupVisualizer() {
     if (isVisualizerSetup) return;
     try {
@@ -223,7 +220,7 @@ document.getElementById('volume-container').onclick = (e) => {
     vol = Math.max(0, Math.min(1, vol));
     player.volume = vol;
     updateVolumeUI(vol);
-    localStorage.setItem('hifi-volume', vol); // Auto-save volume
+    localStorage.setItem('hifi-volume', vol);
 };
 
 function clearPlaylist() { 
