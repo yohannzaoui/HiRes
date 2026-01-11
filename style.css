@@ -57,7 +57,6 @@ body {
 .progress-container { width: 100%; background: #000; height: 6px; border-radius: 10px; cursor: pointer; margin: 25px 0; overflow: hidden; position: relative; }
 .progress-bar { height: 100%; background: var(--accent); position: absolute; }
 
-/* AJUSTEMENT DE L'ESPACEMENT ICI (gap: 30px au lieu de 55px) */
 .main-actions { 
     display: flex; align-items: center; justify-content: center; 
     gap: 30px; 
