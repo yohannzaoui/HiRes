@@ -3,67 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="format-detection" content="address=no">
     <title>HiFi Audio Player</title>
+    
+    <link rel="icon" type="image/png" href="img/favicon.png">
+    <link rel="apple-touch-icon" href="img/icon-192.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#121212">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/png" href="img/favicon.png">
-    <link rel="apple-touch-icon" sizes="96x96" href="img/favicon.png">
-    <link rel="manifest" href="manifest.json">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
 </head>
 <body>
 
 <div class="app-container">
     <div class="player-section">
-        <div class="section-header main-app-title">HiFi Audio System</div>
+        <div class="section-header">HiFi Audio Player</div>
         
         <div class="player-main-content">
-            <div class="visualizer-container">
-                <canvas id="visualizer"></canvas>
-            </div>
-            
             <div id="art-container" class="art-wrapper" style="display:none;">
                 <img id="album-art" src="" alt="Album Art">
             </div>
 
-            <div class="title-wrapper mt-3">
-                <h2 id="file-name" class="text-truncate">No track selected</h2>
-                <div class="badge-container">
-                    <span id="format-badge" class="badge-format" style="display:none"></span>
-                </div>
+            <div class="text-info-container">
+                <h2 id="file-name">No track selected</h2>
+                <div id="artist-name"></div>
             </div>
-            <div id="artist-name" class="text-truncate"></div>
+            
+            <div class="badge-container">
+                <span id="format-badge" class="badge-format" style="display:none"></span>
+            </div>
         </div>
 
         <audio id="player" crossorigin="anonymous"></audio>
         
         <div class="custom-controls w-100">
             <div class="time-display d-flex justify-content-between">
-                <span id="current-time">0:00</span>
-                <span id="duration">0:00</span>
+                <span id="current-time" class="hifi-font">0:00</span>
+                <span id="duration" class="hifi-font">0:00</span>
             </div>
             <div class="progress-container" id="progress-container">
                 <div class="progress-bar" id="progress-bar" style="width: 0%;"></div>
             </div>
             
             <div class="main-actions">
-                <button class="nav-btn-alt" id="prev-btn" onclick="prevTrack()"><i class="fas fa-backward-step"></i></button>
+                <button class="nav-btn-alt" onclick="prevTrack()"><i class="fas fa-backward-step"></i></button>
                 <button class="play-pause-btn" id="play-pause-btn">PLAY</button>
-                <button class="nav-btn-alt" id="next-btn" onclick="nextTrack()"><i class="fas fa-forward-step"></i></button>
+                <button class="nav-btn-alt" onclick="nextTrack()"><i class="fas fa-forward-step"></i></button>
             </div>
 
             <div class="volume-control">
                 <div class="d-flex justify-content-between align-items-center">
-                    <span class="volume-label">VOL</span>
-                    <span id="volume-percent">5%</span>
+                    <span class="volume-label hifi-font">VOL</span>
+                    <span id="volume-percent" class="hifi-font">5%</span>
                 </div>
                 <div class="volume-container" id="volume-container">
                     <div class="volume-bar" id="volume-bar" style="width: 5%;"></div>
                 </div>
+            </div>
+
+            <div class="visualizer-container">
+                <canvas id="visualizer"></canvas>
             </div>
         </div>
 
@@ -71,6 +73,7 @@
             <button class="nav-btn vu-active" id="vu-toggle-btn" onclick="toggleVisualizer()">VU: ON</button>
             <button class="nav-btn" id="shuffle-btn" onclick="toggleShuffle()">SHUFFLE: OFF</button>
             <button class="nav-btn" id="repeat-btn" onclick="toggleRepeat()">REPEAT: OFF</button>
+            <button class="nav-btn" id="ab-loop-btn" onclick="toggleABLoop()">A-B: OFF</button>
             <button class="nav-btn" id="mute-btn" onclick="toggleMute()">MUTE: OFF</button>
         </div>
     </div>
@@ -81,9 +84,14 @@
             <div class="playlist-actions">
                 <label for="file-input" class="upload-btn">Add Files</label>
                 <button class="clear-btn" onclick="clearPlaylist()">Clear</button>
-                <input type="file" id="file-input" accept=".flac,.wav,.mp3,.m4a" multiple style="display:none !important;">
+                <input type="file" id="file-input" accept=".flac,.wav,.mp3,.m4a" multiple style="display:none;">
             </div>
         </div>
+
+        <div id="album-info-display" class="album-meta-row" style="display: none;">
+            ALBUM : <span id="album-title-text"></span>
+        </div>
+
         <div class="playlist-items" id="playlist"></div>
     </div>
 </div>

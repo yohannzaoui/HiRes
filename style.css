@@ -3,255 +3,88 @@
     --bg-card: #161616;
     --accent: #d4af37;
     --danger: #ff4444;
-    --blue-info: #00aaff;
-    --green-success: #2ecc71;
     --text: #ffffff;
     --text-dim: #888888;
     --font-main: 'Inter', sans-serif;
 }
 
-/* Base Reset */
-* { 
-    box-sizing: border-box; 
-    -webkit-font-smoothing: antialiased; 
-    margin: 0; 
-    padding: 0;
-}
+/* Stylized Scrollbar */
+.playlist-items::-webkit-scrollbar { width: 6px; }
+.playlist-items::-webkit-scrollbar-track { background: #050505; }
+.playlist-items::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+.playlist-items::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-main); }
 
 body {
     background: radial-gradient(circle at center, #1a1508 0%, #0a0a0a 100%);
-    color: var(--text);
-    font-family: var(--font-main);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden; /* Empêche le scroll pour garder le focus sur le lecteur */
+    color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden;
 }
 
-/* App Container avec Halo Doré Accentué */
 .app-container {
-    display: flex;
-    background: var(--bg-card);
-    border-radius: 24px;
-    width: 1000px;
-    height: 780px;
-    max-height: 92vh; /* S'adapte à la hauteur de l'écran */
-    overflow: hidden;
-    border: 1px solid rgba(212, 175, 55, 0.4); /* Bordure accentuée */
-    
-    /* Bloom Effect (Multi-couches pour l'intensité) */
-    box-shadow: 
-        0 30px 60px rgba(0, 0, 0, 0.9),            /* Ombre portée profonde */
-        0 0 40px rgba(212, 175, 55, 0.25),         /* Halo proche intense */
-        0 0 100px rgba(212, 175, 55, 0.15),        /* Halo moyen */
-        0 0 180px rgba(212, 175, 55, 0.1),         /* Halo large diffus */
-        inset 0 0 15px rgba(212, 175, 55, 0.05);   /* Lueur interne */
+    display: flex; background: var(--bg-card); border-radius: 24px;
+    width: 1100px; height: 780px; overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    /* INTENSIFIED GOLDEN HALO */
+    box-shadow: 0 0 40px rgba(212, 175, 55, 0.3), 
+                0 0 80px rgba(212, 175, 55, 0.1),
+                0 30px 60px rgba(0, 0, 0, 0.9);
 }
 
-/* Section Lecteur (Gauche) */
-.player-section { 
-    flex: 0 0 420px; 
-    padding: 30px 25px; 
-    border-right: 1px solid #222; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: space-between; 
+.player-section { flex: 0 0 450px; padding: 30px; border-right: 1px solid #222; display: flex; flex-direction: column; align-items: center; justify-content: space-between; background: #121212; }
+.playlist-section { flex: 1; padding: 30px; background: #0a0a0a; display: flex; flex-direction: column; overflow: hidden; }
+
+.section-header { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; color: var(--text-dim); }
+
+.playlist-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 15px; }
+
+.album-meta-row { 
+    font-size: 11px; font-weight: 800; color: var(--accent); letter-spacing: 1px; 
+    margin-bottom: 15px; padding: 8px 12px; background: rgba(212, 175, 55, 0.05); 
+    border-left: 3px solid var(--accent); text-transform: uppercase;
 }
 
-/* Section Playlist (Droite) */
-.playlist-section { 
-    flex: 1; 
-    padding: 30px; 
-    background: #121212; 
-    display: flex; 
-    flex-direction: column; 
-}
+.player-main-content { text-align: center; width: 100%; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+.text-info-container { width: 100%; max-width: 380px; margin-top: 20px; text-align: center; }
+#file-name { color: var(--accent); font-weight: 800; font-size: 1.15rem; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+#artist-name { color: var(--text-dim); font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; height: 1.2rem; }
 
-.playlist-header-row { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    margin-bottom: 20px; 
-    border-bottom: 1px solid #222; 
-    padding-bottom: 15px; 
-    width: 100%;
-}
+.badge-container { width: 100%; display: flex; justify-content: center; margin-top: 10px; }
+.badge-format { display: inline-block; border: 1px solid var(--accent); color: var(--accent); font-size: 9px; padding: 2px 10px; border-radius: 4px; font-weight: 800; text-transform: uppercase; }
 
-/* Textes et Labels */
-.section-header, .time-display span, .volume-label, #volume-percent {
-    font-size: 10px; 
-    text-transform: uppercase; 
-    letter-spacing: 2px; 
-    font-weight: 800; 
-    color: var(--text-dim) !important;
-}
+.hifi-font { font-size: 10px; font-weight: 800; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
 
-.player-main-content { text-align: center; width: 100%; }
+.progress-container, .volume-container { width: 100%; background: #000; height: 6px; border-radius: 10px; cursor: pointer; margin: 10px 0; position: relative; overflow: hidden; }
+.progress-bar, .volume-bar { height: 100%; background: var(--accent); position: absolute; }
 
-/* Visualiseur et Art */
-.visualizer-container { 
-    width: 100%; 
-    height: 50px; 
-    margin-bottom: 10px; 
-}
-#visualizer { width: 100%; height: 100%; }
+.main-actions { display: flex; align-items: center; justify-content: center; gap: 25px; margin: 15px 0; }
+.play-pause-btn { background: transparent; border: 2px solid var(--accent); color: var(--accent); width: 140px; height: 44px; border-radius: 30px; font-weight: 800; cursor: pointer; transition: 0.3s; }
+.play-pause-btn:hover { background: rgba(212, 175, 55, 0.2); box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); }
 
-.art-wrapper { 
-    width: 210px; 
-    height: 210px; 
-    margin: 0 auto; 
-    border-radius: 12px; 
-    border: 1px solid #333; 
-    overflow: hidden; 
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-}
-#album-art { width: 100%; height: 100%; object-fit: cover; }
+.nav-btn-alt { background: #1f1f1f; color: var(--text-dim); width: 42px; height: 42px; border-radius: 50%; border: 1px solid #333; cursor: pointer; transition: 0.3s; }
+.nav-btn-alt:hover { color: var(--accent); border-color: var(--accent); background: rgba(212, 175, 55, 0.1); }
 
-/* Titre et Artiste */
-#file-name { 
-    color: var(--accent); 
-    font-weight: 800; 
-    font-size: 1.1rem; 
-    margin-top: 15px; 
-    margin-bottom: 5px;
-    text-shadow: 0 0 10px rgba(212, 175, 55, 0.3); 
-}
-#artist-name { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 10px; height: 1.2rem; }
+.visualizer-container { width: 100%; height: 55px; margin: 10px 0; background: transparent; }
+#visualizer { width: 100%; height: 100%; display: block; }
 
-.badge-format { 
-    border: 1px solid var(--accent); 
-    color: var(--accent); 
-    font-size: 9px; 
-    padding: 2px 8px; 
-    border-radius: 4px; 
-    font-weight: 800; 
-    text-transform: uppercase; 
-}
-
-/* Barre de progression */
-.progress-container { 
-    width: 100%; 
-    background: #000; 
-    height: 6px; 
-    border-radius: 10px; 
-    cursor: pointer; 
-    margin: 18px 0; 
-    position: relative; 
-    overflow: hidden;
-}
-.progress-bar { height: 100%; background: var(--accent); position: absolute; }
-
-/* Actions principales (BACK - PLAY - NEXT) */
-.main-actions { 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    gap: 30px; /* Espace réduit entre les boutons */
-    margin-bottom: 25px; 
-}
-
-.play-pause-btn { 
-    background: transparent; 
-    border: 1px solid var(--accent); 
-    color: var(--accent); 
-    width: 140px; 
-    height: 44px; 
-    border-radius: 30px; 
-    font-weight: 800; 
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-.play-pause-btn:hover { background: rgba(212, 175, 55, 0.1); transform: scale(1.05); }
-
-.nav-btn-alt { 
-    background: #1f1f1f; 
-    color: var(--text-dim); 
-    width: 40px; 
-    height: 40px; 
-    border-radius: 50%; 
-    border: none; 
-    cursor: pointer; 
-    transition: all 0.2s ease;
-}
-.nav-btn-alt:hover { color: var(--accent); transform: scale(1.1); }
-
-/* Volume */
-.volume-control { width: 100%; margin-bottom: 10px; }
-.volume-container { 
-    width: 100%; 
-    background: #000; 
-    height: 6px; 
-    border-radius: 10px; 
-    cursor: pointer; 
-    margin-top: 8px; 
-    position: relative; 
-    overflow: hidden;
-}
-.volume-bar { height: 100%; background: var(--accent); position: absolute; }
-
-/* Boutons de contrôle du bas (VU, Shuffle, Repeat, Mute) */
-.nav-controls { 
-    display: flex; 
-    gap: 8px; 
-    width: 100%; 
-}
+.nav-controls { display: flex; gap: 8px; width: 100%; margin-top: 10px; }
 .nav-btn { 
-    background: #1f1f1f; 
-    color: var(--text-dim); 
-    flex: 1; 
-    height: 34px; 
-    border-radius: 8px; 
-    font-size: 8px; 
-    font-weight: 800; 
-    border: 1px solid transparent; 
-    cursor: pointer; 
-    transition: all 0.2s ease;
+    background: #1f1f1f; color: var(--text-dim); flex: 1; height: 40px; 
+    border-radius: 8px; font-size: 8px; font-weight: 800; border: 1px solid #333; 
+    cursor: pointer; transition: 0.3s; white-space: nowrap; overflow: hidden; 
 }
-.nav-btn:hover { color: var(--accent); background: #252525; }
+.nav-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(212, 175, 55, 0.1); }
 
-/* États de couleur pour les boutons actifs */
-.vu-active, .shuffle-active { color: var(--accent) !important; border-color: rgba(212, 175, 55, 0.4) !important; }
-.mute-active { color: var(--danger) !important; border-color: rgba(255, 68, 68, 0.4) !important; }
-.rep-one { color: var(--blue-info) !important; border-color: rgba(0, 170, 255, 0.4) !important; }
-.rep-all { color: var(--green-success) !important; border-color: rgba(46, 204, 113, 0.4) !important; }
-
-/* Playlist */
-.playlist-items { overflow-y: auto; flex: 1; }
-.playlist-item { 
-    padding: 10px; 
-    border-bottom: 1px solid #1a1a1a; 
-    cursor: pointer; 
-    color: var(--text-dim); 
-    font-size: 0.85rem; 
+.vu-active, .shuffle-active, .mute-active, .rep-one, .rep-all, .ab-active { 
+    color: var(--accent) !important; border-color: var(--accent) !important; background: rgba(212, 175, 55, 0.15) !important;
 }
-.playlist-item:hover { color: var(--accent); }
+
+.playlist-items { overflow-y: auto; flex: 1; padding-right: 5px; }
+.playlist-item { padding: 12px; border-bottom: 1px solid #1a1a1a; cursor: pointer; color: var(--text-dim); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .playlist-item.active { color: var(--accent); background: rgba(212, 175, 55, 0.05); }
 
-/* Upload & Clear */
-.upload-btn { 
-    background: var(--accent); 
-    color: #000; 
-    padding: 6px 12px; 
-    border-radius: 6px; 
-    font-size: 10px; 
-    font-weight: 800; 
-    cursor: pointer; 
-}
-.clear-btn { 
-    background: #1f1f1f; 
-    color: var(--danger); 
-    border: none; 
-    padding: 6px 12px; 
-    border-radius: 6px; 
-    font-size: 10px; 
-    font-weight: 800; 
-    cursor: pointer; 
-}
+.upload-btn { background: var(--accent); color: #000; padding: 6px 12px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.3s; }
+.clear-btn { background: transparent; color: var(--danger); border: 1px solid var(--danger); padding: 6px 12px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; margin-left: 8px; }
 
-/* Scrollbar Custom pour le mode sombre */
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: #121212; }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+.art-wrapper { width: 220px; height: 220px; border-radius: 12px; border: 1px solid #333; overflow: hidden; margin: 0 auto; }
+#album-art { width: 100%; height: 100%; object-fit: cover; }
