@@ -1,15 +1,15 @@
 {
   "name": "HiFi Audio Player",
   "short_name": "HiFiPlayer",
-  "description": "High-fidelity Desktop Audio Station",
+  "description": "HiFi Audio Player for PC/MAC",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#0a0a0a",
   "theme_color": "#d4af37",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/1160/1160162.png",
-      "sizes": "512x512",
+      "src": "img/favicon.png",
+      "sizes": "96x96",
       "type": "image/png"
     }
   ]
