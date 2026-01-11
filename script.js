@@ -17,12 +17,14 @@ let currentIndex = 0;
 let isShuffle = false;
 let repeatMode = 'OFF';
 
-window.addEventListener('resize', resizeCanvas);
-function resizeCanvas() {
+// --- Peak Hold Variables ---
+let peaks = [];
+const PEAK_FALL_SPEED = 1.2;
+
+window.addEventListener('resize', () => {
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
-}
-resizeCanvas();
+});
 
 function setupVisualizer() {
     if (isVisualizerSetup) return;
@@ -35,6 +37,9 @@ function setupVisualizer() {
         analyzer.fftSize = 64; 
         dataArray = new Uint8Array(analyzer.frequencyBinCount);
         isVisualizerSetup = true;
+        
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
         draw();
     } catch (e) { console.error("AudioContext error:", e); }
 }
@@ -43,17 +48,39 @@ function draw() {
     requestAnimationFrame(draw);
     canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
     if (!isVisualizerEnabled || !isVisualizerSetup) return;
+
     analyzer.getByteFrequencyData(dataArray);
-    const barWidth = (canvas.width / dataArray.length) - 2;
+    const barWidth = (canvas.width / dataArray.length) * 2.5;
     let x = 0;
+
     for (let i = 0; i < dataArray.length; i++) {
         let barHeight = (dataArray[i] / 255) * canvas.height;
-        canvasCtx.fillStyle = '#d4af37';
-        canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-        x += barWidth + 2;
+
+        // Peak Hold Logic
+        if (!peaks[i] || barHeight > peaks[i]) {
+            peaks[i] = barHeight;
+        } else {
+            peaks[i] -= PEAK_FALL_SPEED;
+        }
+
+        // Bar Gradient
+        const gradient = canvasCtx.createLinearGradient(0, canvas.height, 0, 0);
+        gradient.addColorStop(0, '#8a6d1d');
+        gradient.addColorStop(0.6, '#d4af37');
+        gradient.addColorStop(1, '#f9e79f');
+
+        canvasCtx.fillStyle = gradient;
+        canvasCtx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
+
+        // Peak Line
+        canvasCtx.fillStyle = '#ffffff';
+        canvasCtx.fillRect(x, canvas.height - peaks[i] - 2, barWidth - 2, 2);
+
+        x += barWidth;
     }
 }
 
+// Metadata Extraction
 function extractMetadata(file) {
     jsmediatags.read(file, {
         onSuccess: function(tag) {
@@ -76,6 +103,7 @@ function extractMetadata(file) {
     });
 }
 
+// Playlist & Control Logic
 fileInput.addEventListener('change', (e) => {
     const files = Array.from(e.target.files);
     const wasEmpty = (playlist.length === 0);
@@ -118,7 +146,7 @@ playPauseBtn.onclick = () => {
 
 function nextTrack() {
     if (playlist.length === 0) return;
-    if (repeatMode === 'ONE') playTrack(currentIndex);
+    if (repeatMode === 'ONE') { playTrack(currentIndex); } 
     else {
         let next = (currentIndex + 1) % playlist.length;
         if (isShuffle) next = Math.floor(Math.random() * playlist.length);
@@ -128,8 +156,8 @@ function nextTrack() {
 
 function prevTrack() {
     if (playlist.length === 0) return;
-    if (repeatMode === 'ONE') playTrack(currentIndex);
-    else playTrack((currentIndex - 1 + playlist.length) % playlist.length);
+    if (repeatMode === 'ONE') { playTrack(currentIndex); }
+    else { playTrack((currentIndex - 1 + playlist.length) % playlist.length); }
 }
 
 player.onended = () => {
